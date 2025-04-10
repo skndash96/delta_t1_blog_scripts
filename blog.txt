@@ -1,0 +1,17 @@
+blog command is used to manage your blogs
+
+SYNOPSIS
+blog [options] <filename>
+
+where options is
+-n Create a blog file blogs dir and add it to YAML
+-p Publish a blog
+-a Archive a blog
+-d Delete a blog
+-e Edit categories of a blog
+-h Display this message
+
+where filename is the name of the file located at "~/blogs/[filename]"
+
+one of the options is mandatory and must be present as first argument and filename as second argument.
+good luck blogging and may the force be with you.

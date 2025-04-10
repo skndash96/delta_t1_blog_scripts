@@ -1,0 +1,44 @@
+#!/bin/bash
+
+function populate() {
+	key=$1
+	u=0
+
+	while true
+	do
+		user=$(yq ".$key[$u]" users.yaml)
+		if [[ $user == 'null' ]]; then return; fi
+
+		username=$(echo "$user" | yq ".username")
+		name=$(echo "$user" | yq ".name")
+
+		homedir="/home/$key/$username"
+
+		useradd -m -d "$homedir" -U -c "$name" "$username"
+
+		if [[ $? != 0 ]]; then
+			echo "skipping $key $username"
+		else
+			usermod -a -G "g_$key" "$username"
+			if [[ $key == "users" ]]; then
+				mkdir "$homedir/all_blogs"
+				chown "$username:$username" "$homedir/all_blogs"
+			elif [[ $key == "authors" ]]; then
+				dirs="$homedir/blogs $homedir/public"
+				mkdir $dirs
+				cp "/scripts/blogs_initial.yaml" "$homedir/blogs.yaml"
+				chown "$username:$username" $dirs
+				chmod u=rw,g=rw,o= $dirs
+				chmod o+r "$homedir/public"
+			fi
+			echo "$key $username $name"
+		fi
+
+		((u=u+1))
+	done
+}
+
+populate admins
+populate mods
+populate authors
+populate users

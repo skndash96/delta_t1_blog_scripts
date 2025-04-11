@@ -1,8 +1,14 @@
 #!/bin/bash
 
 author="$1"
-base="/home/authors/$author/public"
-blogs_data_file="$base/blogs.yaml"
+
+if [[ -z "$1" ]]; then
+	echo "Please provide author name as argument 1"
+fi
+
+home="/home/authors/$author"
+base="$home/public"
+blogs_data_file="$home/blogs.yaml"
 
 for blog in "$base"/*; do
 	blogname=$(echo -n "$blog" | cut -c $((${#base}+2))-)
@@ -12,22 +18,25 @@ for blog in "$base"/*; do
 	count=$(echo "$words" | wc -w)
 
 	if [[ $count -gt 5 ]]; then
-		chmod o-r "$base/blogs/$blogname"
+		chmod o-r "$home/blogs/$blogname"
 
 		yq -i "
 			(.blogs[] | select(.file_name == \"$blogname\")).publish_status = false |
 			(.blogs[] | select(.file_name == \"$blogname\")).mod_comment = \"Found $count blacklisted words\"
 		" "$blogs_data_file"
 
-		unlink "/home/authors/$author/public/$blogname"
+		unlink "$base/$blogname"
 
-		echo "ARCHIVED $blogname $count $words"
-	fi
+		echo "ARCHIVED $blogname $count"
+	elif [[ $count -ge 1 ]]; then
+		sed_file=$(mktemp)
 
-	if [[ $count -ge 1 ]]; then
 		for word in "${uniq_words[@]}"; do
-			echo "$word wow"
+			echo "s/$word/$(printf %*s ${#word} | tr ' ' '*' )/I" >> "$sed_file"
 		done
+
+		sed -i -f "$sed_file" "$home/blogs/$blogname"
+
 		echo "$blogname $count"
 	fi
 done

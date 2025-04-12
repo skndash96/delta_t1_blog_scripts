@@ -4,7 +4,7 @@ u=0
 
 while true
 do
-	user=$(yq ".users[$u]" users.yaml)
+	user=$(yq ".users[$u]" "/scripts/users.yaml")
 	if [[ "$user" == "null" ]]; then break; fi
 
 	username=$(echo "$user" | yq ".username")
@@ -13,7 +13,7 @@ do
 
 	while true
 	do
-		author=$(yq ".authors[$v]" users.yaml)
+		author=$(yq ".authors[$v]" "/scripts/users.yaml")
 		if [[ "$author" == "null" ]]; then break; fi
 
 		authorusername=$(echo "$author" | yq ".username")

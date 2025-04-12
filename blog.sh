@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 author=$(whoami)
@@ -68,14 +69,23 @@ function publish () {
 		new
 	fi
 
+	blog_filter="(.blogs[] | select(.file_name == \"$blogname\"))"
+
 	yq -i "
-  		(.blogs[] | select(.file_name == \"$blogname\")).publish_status = true |
-		(.blogs[] | select(.file_name == \"$blogname\")).cat_order = [$joined_categories] |
-		del((.blogs[] | select(.file_name == \"$blogname\")).mod_comment)
+  		$blog_filter.publish_status = true |
+		$blog_filter.cat_order = [$joined_categories] |
+		del($blog_filter.mod_comment)
 	" "$blogs_data_file" 
 
 	chmod o+r "$blogpath"
-	ln -sf "$blogpath" "/home/authors/$author/public/$blogname"
+
+	sub_status=$(yq "$blog_filter.subscribers_only" "$blogs_data_file")
+
+	if [[ "$sub_status" == "true" ]]; then
+		ln -sf "$blogpath" "/home/authors/$author/subscribers_only/$blogname"
+	else
+		ln -sf "$blogpath" "/home/authors/$author/public/$blogname"
+	fi
 
 	echo "Published"
 }
@@ -86,7 +96,7 @@ function archive () {
 	chmod o-r "$blogpath"
 	yq -i "(.blogs[] | select(.file_name == \"$blogname\")).publish_status = false" "$blogs_data_file"
 	unlink "/home/authors/$author/public/$blogname"
-
+	unlink "/home/authors/$author/subscribers_only/$blogname"
 	echo "Archived"
 }
 
@@ -98,6 +108,7 @@ function delete () {
 	" "$blogs_data_file"
 
 	unlink "/home/authors/$author/public/$blogname"
+	unlink "/home/authors/$author/subscribers_only/$blogname"
 
 	rm "$blogpath"
 
@@ -121,6 +132,39 @@ function edit_cat () {
 }
 
 
+
+function toggle_subs () {
+	yq -i "
+		(.blogs[] | select(.file_name == \"$blogname\")).subscribers_only |= (. | not)
+	" "$blogs_data_file"
+
+	blog=$(yq ".blogs[] | select(.file_name == \"$blogname\")" "$blogs_data_file")
+
+	if [[ -z "$blog" ]]; then
+		new
+	fi
+
+	subs_status=$(echo "$blog" | yq ".subscribers_only")
+	publish_status=$(echo "$blog" | yq ".publish_status")
+
+	if [[ $subs_status == "true" ]]; then
+		if [[ "$publish_status" == 'true' ]]; then
+			ln -sf "$blogpath" "/home/authors/$author/subscribers_only/$blogname"
+		fi
+
+		unlink "/home/authors/$author/public/$blogname"
+	else
+		if [[ "$publish_status" == 'true' ]]; then
+			ln -sf "$blogpath" "/home/authors/$author/public/$blogname"
+		fi
+
+		unlink "/home/authors/$author/subscribers_only/$blogname"
+	fi
+
+	echo "Subscribers Only is set to $subs_status"
+}
+
+
 if [[ $1 == '-h' ]]; then
 	help
 	exit 0
@@ -140,5 +184,6 @@ if [[ $1 == "-p" ]]; then publish;
 elif [[ $1 == "-a" ]]; then archive;
 elif [[ $1 == "-d" ]]; then delete;
 elif [[ $1 == "-e" ]]; then edit_cat;
+elif [[ $1 == "-s" ]]; then toggle_subs;
 else help
 fi

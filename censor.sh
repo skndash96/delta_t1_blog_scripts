@@ -4,6 +4,7 @@ author="$1"
 
 if [[ -z "$1" ]]; then
 	echo "Please provide author name as argument 1"
+	exit 1
 fi
 
 home="/home/authors/$author"

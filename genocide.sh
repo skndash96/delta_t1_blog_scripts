@@ -12,7 +12,6 @@ function populate() {
 		username=$(echo "$user" | yq ".username")
 		name=$(echo "$user" | yq ".name")
 
-		homedir="/home/$key/$username"
 		userdel -r "$username"
 
 		echo "$key $username $name"

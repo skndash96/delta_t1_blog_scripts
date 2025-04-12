@@ -23,12 +23,13 @@ function populate() {
 			if [[ $key == "users" ]]; then
 				mkdir "$homedir/all_blogs"
 				chown "$username:$username" "$homedir/all_blogs"
+				touch "$homedir/blog_reads.log"
 			elif [[ $key == "authors" ]]; then
-				dirs="$homedir/blogs $homedir/public"
+				dirs="$homedir/blogs $homedir/public $homedir/subscribers_only"
 				mkdir $dirs
 				cp "/scripts/blogs_initial.yaml" "$homedir/blogs.yaml"
-				chown "$username:$username" $dirs
-				chmod u=rw,g=rw,o= $dirs
+				chown "$username:$username" $dirs "$homedir/blogs.yaml"
+				chmod u=rwx,g=rwx,o= $dirs "$homedir/blogs.yaml"
 				chmod o+r "$homedir/public"
 			fi
 			echo "$key $username $name"

@@ -3,7 +3,14 @@
 userpref="/scripts/userpref.yaml"
 
 authors_base=($(ls -1pd /home/authors/* | grep "/$"))
+
 n_blogs=$(ls -1pd /home/authors/*/public/* | grep -v "/$" | wc -l)
+
+if [[ $n_blogs == 0 ]]; then
+	echo "No blogs"
+	exit 1
+fi
+
 n_users=$(yq ".users | length" "$userpref")
 n_authors=${#authors_base[@]}
 

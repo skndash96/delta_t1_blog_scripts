@@ -1,0 +1,61 @@
+#!/bin/bash
+authors=($(ls -1p "/home/authors" | grep \/$))
+
+report_path="/scripts/reports/$(date +%s).yaml"
+touch "$report_path"
+
+tmp=$(mktemp)
+
+for author in "${authors[@]}"; do
+	blogs_data_file="/home/authors/${author}blogs.yaml" #author has a trailing /"
+
+	u=0
+
+	while true; do
+		blog=$(yq ".blogs.[$u]" "$blogs_data_file")
+		if [[ "$blog" == "null" ]]; then break; fi
+
+		file_name=$(echo "$blog" | yq ".file_name")
+
+		blogpath="/home/authors/${author}public/${file_name}"
+
+		reads=0
+		for log in $(ls -1p /home/users/*/blog_reads.log); do
+			((reads+=$(cat "$log" | grep "$blogpath" | wc -l)))
+		done
+
+		cats=($(echo "$blog" | yq ".cat_order" | cut -c 3-))
+
+		cats_joined="["
+		for cate in "${cats[@]}"; do
+			cate_name=$(yq ".categories.$cate" "$blogs_data_file")
+			yq -i ".categories.[\"$cate_name\"] += 1" "$report_path"
+			cats_joined+="\"$cate_name\","
+		done
+
+		if [[ "${#cats[@]}" -gt 0 ]]; then
+			cats_joined=${cats_joined::-1}
+		fi
+
+		cats_joined+="]"
+
+		blog=$(echo "$blog" | yq ".cat_order = $cats_joined" | yq ".reads = $reads")
+
+		echo "$blog" > "$tmp"
+
+		yq -i ".blogs += [load(\"$tmp\")]" "$report_path"
+
+		((u=u+1))
+	done
+done
+
+rm "$tmp"
+
+yq -i ".blogs |= (sort_by(.reads) | reverse)" "$report_path"
+
+total_published=$(yq ".blogs[] | select(.publish_status == true).file_name" "$report_path" | wc -l)
+total_deleted=$(yq ".blogs[] | select(.publish_status == false).file_name" "$report_path" | wc -l)
+
+yq -i ".total_published = $total_published | .total_deleted = $total_deleted" "$report_path"
+
+echo "$report_path"

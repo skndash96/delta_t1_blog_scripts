@@ -9,9 +9,10 @@ where options is
 -a Archive a blog
 -d Delete a blog
 -e Edit categories of a blog
+-s Toggle subscribers_only for a blog
 -h Display this message
 
 where filename is the name of the file located at "~/blogs/[filename]"
 
-one of the options is mandatory and must be present as first argument and filename as second argument.
+exactly one option must be present as first argument and filename as second argument.
 good luck blogging and may the force be with you.

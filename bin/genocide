@@ -6,7 +6,7 @@ function populate() {
 
 	while true
 	do
-		user=$(yq ".$key[$u]" users.yaml)
+		user=$(yq ".$key[$u]" /scripts/users.yaml)
 		if [[ $user == 'null' ]]; then return; fi
 
 		username=$(echo "$user" | yq ".username")

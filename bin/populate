@@ -6,7 +6,7 @@ function populate() {
 
 	while true
 	do
-		user=$(yq ".$key[$u]" users.yaml)
+		user=$(yq ".$key[$u]" /scripts/users.yaml)
 		if [[ $user == 'null' ]]; then return; fi
 
 		username=$(echo "$user" | yq ".username")
@@ -21,8 +21,8 @@ function populate() {
 		else
 			usermod -a -G "g_$key" "$username"
 			if [[ $key == "users" ]]; then
-				mkdir "$homedir/all_blogs"
-				chown "$username:$username" "$homedir/all_blogs"
+				mkdir "$homedir/all_blogs" "$homedir/subscribed_blogs"
+				chown "$username:$username" "$homedir/all_blogs" "$homedir/subscribed_blogs"
 				touch "$homedir/blog_reads.log"
 			elif [[ $key == "authors" ]]; then
 				dirs="$homedir/blogs $homedir/public $homedir/subscribers_only"

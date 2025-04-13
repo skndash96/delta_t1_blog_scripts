@@ -1,0 +1,23 @@
+#!/bin/bash
+
+author="$1"
+
+if [[ -z "$author" ]]; then
+	echo "Usage: subscribe <authorname>"
+	exit 1
+fi
+
+if [[ ! -d "/home/authors/$author" ]]; then
+	echo "Author does not exist"
+	exit 1
+fi
+
+target="/home/users/$(whoami)/subscribed_blogs/$author"
+
+if [[ -f "$target" ]]; then
+	unlink "$target"
+	echo "Unsubscribed"
+else
+	ln -sfn "/home/authors/$author/subscribers_only" "$target"
+	echo "Subscribed"
+fi

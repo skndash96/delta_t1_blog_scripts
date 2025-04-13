@@ -7,7 +7,7 @@ u=0
 
 while true
 do
-	mod=$(yq ".mods[$u]" users.yaml)
+	mod=$(yq ".mods[$u]" /scripts/users.yaml)
 	if [[ "$mod" == "null" ]]; then break; fi
 
 	mod_username=$(echo "$mod" | yq ".username")

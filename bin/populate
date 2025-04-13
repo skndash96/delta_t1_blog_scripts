@@ -16,20 +16,25 @@ function populate() {
 
 		useradd -m -d "$homedir" -U -c "$name" "$username"
 
+		if [[ $key == "users" ]] || [[ $key == "authors" ]]; then
+			chmod o+x "$homedir"
+		fi
+
 		if [[ $? != 0 ]]; then
 			echo "skipping $key $username"
 		else
 			usermod -a -G "g_$key" "$username"
 			if [[ $key == "users" ]]; then
 				mkdir "$homedir/all_blogs" "$homedir/subscribed_blogs"
-				chown "$username:$username" "$homedir/all_blogs" "$homedir/subscribed_blogs"
 				touch "$homedir/blog_reads.log"
+				chown "$username:$username" "$homedir/all_blogs" "$homedir/subscribed_blogs" "$homedir/blog_reads.log"
 			elif [[ $key == "authors" ]]; then
 				dirs="$homedir/blogs $homedir/public $homedir/subscribers_only"
 				mkdir $dirs
 				cp "/scripts/blogs_initial.yaml" "$homedir/blogs.yaml"
 				chown "$username:$username" $dirs "$homedir/blogs.yaml"
-				chmod u=rwx,g=rwx,o= $dirs "$homedir/blogs.yaml"
+				chmod u=rwx,g=rwx,o=x $dirs
+				chmod u=rwx,g=rwx,o= "$homedir/blogs.yaml"
 				chmod o+r "$homedir/public"
 			fi
 			echo "$key $username $name"

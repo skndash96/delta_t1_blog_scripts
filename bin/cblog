@@ -14,10 +14,6 @@ blog_filter=".blogs[] | select(.file_name == \"$blogname\")"
 
 views_file="/home/users/$(whoami)/blog_reads.log"
 
-if [[ ! -f "$views_file" ]]; then
-	touch "$views_file"
-fi
-
 echo "$blogpath" >> "$views_file"
 
 modified=$(stat "$blogpath" | grep Modify | sed s/Modify/Date/ | cut -c 1-16)

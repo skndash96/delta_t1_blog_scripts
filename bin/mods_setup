@@ -19,7 +19,7 @@ do
 		if [[ "$author_username" == "null" ]]; then break; fi
 
 		dir="/home/authors/$author_username/public"
-		setfacl -R -m "u:$mod_username:rwx" "$dir"
+		setfacl -R -d -m "u:$mod_username:rwx" "$dir"
 
 		((v=v+1))
 

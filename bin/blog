@@ -11,6 +11,15 @@ function help () {
 	cat /scripts/blog.txt
 }
 
+function notify_subs() {
+	echo -e "$author\n$blogname" | nc localhost 3000 -q 2 -w 2
+
+	if [[ $? == 0 ]]; then
+		echo "Subscribers notified"
+	else
+		echo "Failed to send notifs to subscribers"
+	fi
+}
 
 function print_categories() {
 	out=()
@@ -72,7 +81,7 @@ function publish () {
 	blog_filter="(.blogs[] | select(.file_name == \"$blogname\"))"
 
 	yq -i "
-  		$blog_filter.publish_status = true |
+		$blog_filter.publish_status = true |
 		$blog_filter.cat_order = [$joined_categories] |
 		del($blog_filter.mod_comment)
 	" "$blogs_data_file" 
@@ -83,6 +92,8 @@ function publish () {
 
 	if [[ "$sub_status" == "true" ]]; then
 		ln -sf "$blogpath" "/home/authors/$author/subscribers_only/$blogname"
+
+		notify_subs
 	else
 		ln -sf "$blogpath" "/home/authors/$author/public/$blogname"
 	fi
@@ -150,6 +161,8 @@ function toggle_subs () {
 	if [[ $subs_status == "true" ]]; then
 		if [[ "$publish_status" == 'true' ]]; then
 			ln -sf "$blogpath" "/home/authors/$author/subscribers_only/$blogname"
+			
+			notify_subs
 		fi
 
 		unlink "/home/authors/$author/public/$blogname"

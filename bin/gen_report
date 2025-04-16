@@ -17,9 +17,10 @@ for author in "${authors[@]}"; do
 
 		file_name=$(echo "$blog" | yq ".file_name")
 
-		blogpath="/home/authors/${author}public/${file_name}"
+		blogpath="$author$file_name"
 
 		reads=0
+
 		for log in $(ls -1p /home/users/*/blog_reads.log); do
 			((reads+=$(cat "$log" | grep "$blogpath" | wc -l)))
 		done

@@ -1,0 +1,23 @@
+#!/bin/bash
+notifs_file="/home/users/$(whoami)/notifications.log"
+
+if [[ ! -f "$notifs_file" ]]; then
+	echo "No Notifications"
+	exit 0
+fi
+
+out=$(sed -n '/^new_notifs$/,/^$/p' "notifications.log" | sed "1d")
+
+if [[ -z "$out" ]]; then
+	echo "No new notifications"
+	exit 0
+else
+	echo "$out"
+fi
+
+tmp=$(mktemp)
+
+sed '/^new_notifs$/d' "notifications.log" > "$tmp"
+echo "new_notifs" >> "$tmp"
+
+cat "$tmp" > "$notifs_file"

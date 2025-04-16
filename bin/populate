@@ -1,5 +1,7 @@
 #!/bin/bash
 
+default_pw="123"
+
 function populate() {
 	key=$1
 	u=0
@@ -15,6 +17,7 @@ function populate() {
 		homedir="/home/$key/$username"
 
 		useradd -m -d "$homedir" -U -c "$name" "$username"
+		echo -e "$default_pw\n$default_pw" | passwd --stdin "$username"
 
 		if [[ $key == "users" ]] || [[ $key == "authors" ]]; then
 			chmod o+x "$homedir"

@@ -1,0 +1,56 @@
+#!/bin/bash
+
+requests_file="/scripts/requests.yaml"
+help_text="Usage 'promote_respond <username> <approve|reject>'"
+
+username="$1"
+
+if [[ -z "$username" ]]; then
+	echo "$help_text"
+	exit 1
+fi
+
+req_filter=".requests[] | select(. == \"$username\")"
+
+req_exists=$(yq "$req_filter" "$requests_file")
+
+if [[ -z "$req_exists" ]]; then
+	echo "Request does not exist"
+	exit 1
+fi
+
+if [[ "$2" == "reject" ]]; then
+	yq -i "del($req_filter)" "$requests_file"
+	echo "Rejected"
+elif [[ "$2" == "approve" ]]; then
+	target_dir="/home/authors/$username"
+
+	usermod -G "g_authors" -d "$target_dir" "$username"
+
+	mv "/home/users/$username" "$target_dir"
+
+	rm "$target_dir/all_blogs" "$target_dir/blog_reads.log" "$target_dir/subscribed_blogs" -rf
+
+	dirs="$target_dir/blogs $target_dir/public $target_dir/subscribers_only"
+
+	mkdir $dirs
+
+	cp "/scripts/blogs_initial.yaml" "$target_dir/blogs.yaml"
+
+	chown "$username:$username" $dirs "$target_dir/blogs.yaml"
+	chmod u=rwx,g=rwx,o=x $dirs
+	chmod u=rwx,g=rwx,o= "$target_dir/blogs.yaml"
+	chmod o+r "$target_dir/public"
+
+	for all_blogs_dir in "$(ls -1d /home/users/*/all_blogs)"; do
+		ln -sfn "$target_dir/public" "$all_blogs_dir/$username"
+	done
+
+	echo "Added sym links to /home/users/*/all_blogs/$username"
+
+	yq -i "del($req_filter)" "$requests_file"
+
+	echo "Moved user $username to authors" 
+else
+	echo "$help_text"
+fi

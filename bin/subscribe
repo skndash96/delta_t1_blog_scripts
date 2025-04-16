@@ -12,12 +12,25 @@ if [[ ! -d "/home/authors/$author" ]]; then
 	exit 1
 fi
 
-target="/home/users/$(whoami)/subscribed_blogs/$author"
+curr_user="$(whoami)" #root
+username="$SUDO_USER"
 
-if [[ -f "$target" ]]; then
+if [[ -z "$username" ]]; then
+	echo "Run with sudo"
+	exit 1
+fi
+
+target="/home/users/$username/subscribed_blogs/$author"
+
+subs_file="/scripts/subscriptions.yaml"
+
+if [[ -d "$target" ]]; then
+	yq -i "del(.[\"$author\"][] | select(. == \"$username\"))" "$subs_file"
 	unlink "$target"
-	echo "Unsubscribed"
+	echo "Unsubscribed from $author"
 else
+	yq -i ".[\"$author\"] += [\"$username\"]" "$subs_file"
 	ln -sfn "/home/authors/$author/subscribers_only" "$target"
-	echo "Subscribed"
+	chown "$username:$username" "$target"
+	echo "Subscribed to $author"
 fi

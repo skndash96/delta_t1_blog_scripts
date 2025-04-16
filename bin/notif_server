@@ -1,0 +1,36 @@
+#!/bin/bash
+
+port=3000
+
+while true; do
+	msg=($(nc -l -s localhost -p $port))
+	author=${msg[0]}
+	blogname=${msg[1]}
+
+	if [[ -z "$author" ]] || [[ -z "$blogname" ]]; then
+		echo "invalid req"
+		continue
+	fi
+
+	blogpath="/home/authors/$author/subscribers_only/$blogname"
+
+	if [[ ! -f "$blogpath" ]]; then
+		echo "blog doesnt exist"
+		continue
+	fi
+
+	subscribers=($(yq ".[\"$author\"][]" "/scripts/subscriptions.yaml"))
+
+	for sub in "${subscribers[@]}"; do
+		notifs_file="/home/users/$sub/notifications.log"
+		if [[ ! -f "$notifs_file" ]]; then
+			touch "$notifs_file"
+			chown "$sub:$sub" "$notifs_file"
+			echo "new_notifs" >> "$notifs_file"
+		fi
+
+		echo "New post from $author '$blogname'" >> "$notifs_file"
+	done
+
+	echo "$author/$blogname"
+done

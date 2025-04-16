@@ -5,16 +5,16 @@ blogname="$2"
 blogpath="/home/authors/$1/public/$2"
 
 if [[ ! -f "$blogpath" ]]; then
-	echo "Blog does not exist. Usage: <command> <authorname> <blogname>"
-	exit 1
+	blogpath="/home/users/$(whoami)/subscribed_blogs/$author/$blogname"
+	if [[ ! -f "$blogpath" ]]; then
+		echo "Blog does not exist. Usage: <command> <authorname> <blogname>"
+		exit 1
+	fi
 fi
-
-blogs_data_file="/home/authors/$1/blogs.yaml"
-blog_filter=".blogs[] | select(.file_name == \"$blogname\")"
 
 views_file="/home/users/$(whoami)/blog_reads.log"
 
-echo "$blogpath" >> "$views_file"
+echo "$author/$blogname" >> "$views_file"
 
 modified=$(stat "$blogpath" | grep Modify | sed s/Modify/Date/ | cut -c 1-16)
 

@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# this is to be added in .bashrc / etc/profile
+# similar script is to be run by cron (0 * * * *) every hour,
+# notify each online user (who command) their unread notifs count (write)
+
+username=$(whoami)
+
+notifs_file="/home/users/$username/notifications.log"
+
+if [[ ! -f "$notifs_file" ]]; then
+	exit 0
+fi
+
+unread_cnt=$(sed -n "/^new_notifs$/,/^$/p" "$notifs_file" | sed "1d" | wc -l)
+
+if [[ "$unread_cnt" -gt 0 ]]; then
+	msg="Hello $username, you have $unread_cnt new notifications! Run 'view_notifs' to see them"
+	echo "$msg"
+fi

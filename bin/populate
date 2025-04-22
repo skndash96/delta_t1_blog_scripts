@@ -17,7 +17,8 @@ function populate() {
 		homedir="/home/$key/$username"
 
 		useradd -m -d "$homedir" -U -c "$name" "$username"
-		echo -e "$default_pw\n$default_pw" | passwd --stdin "$username"
+
+		echo -e "$default_pw\n$default_pw" | passwd -q "$username"
 
 		if [[ $key == "users" ]] || [[ $key == "authors" ]]; then
 			chmod o+x "$homedir"
@@ -32,6 +33,8 @@ function populate() {
 				touch "$homedir/blog_reads.log"
 				chown "$username:$username" "$homedir/all_blogs" "$homedir/subscribed_blogs" "$homedir/blog_reads.log"
 			elif [[ $key == "authors" ]]; then
+				groupadd "g_${username}_subs"
+
 				dirs="$homedir/blogs $homedir/public $homedir/subscribers_only"
 				mkdir $dirs
 				cp "/scripts/blogs_initial.yaml" "$homedir/blogs.yaml"

@@ -18,7 +18,8 @@ do
 
 		authorusername=$(echo "$author" | yq ".username")
 
-		ln -sfn "/home/authors/$authorusername/public" "/home/users/$username/all_blogs/$authorusername"
+		target="/home/users/$username/all_blogs/$authorusername"
+		ln -sfn "/home/authors/$authorusername/public" "$target"
 
 		echo "$authorusername -> $username"
 

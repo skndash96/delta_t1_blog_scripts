@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 author=$(whoami)
@@ -86,16 +85,17 @@ function publish () {
 		del($blog_filter.mod_comment)
 	" "$blogs_data_file" 
 
-	chmod o+r "$blogpath"
+	setfacl -R -m "g:g_users:r" "$blogpath"
 
 	sub_status=$(yq "$blog_filter.subscribers_only" "$blogs_data_file")
 
 	if [[ "$sub_status" == "true" ]]; then
 		ln -sf "$blogpath" "/home/authors/$author/subscribers_only/$blogname"
-
+		setfacl -R -m "g:g_${author}_subs:r" "$blogpath"
 		notify_subs
 	else
 		ln -sf "$blogpath" "/home/authors/$author/public/$blogname"
+		setfacl -R -x "g:g_${author}_subs" "$blogpath"
 	fi
 
 	echo "Published"
@@ -104,10 +104,11 @@ function publish () {
 
 
 function archive () {
-	chmod o-r "$blogpath"
+	setfacl -R -x "g:g_users" "$blogpath"
 	yq -i "(.blogs[] | select(.file_name == \"$blogname\")).publish_status = false" "$blogs_data_file"
-	unlink "/home/authors/$author/public/$blogname"
-	unlink "/home/authors/$author/subscribers_only/$blogname"
+	unlink "/home/authors/$author/public/$blogname" 2>/dev/null
+	unlink "/home/authors/$author/subscribers_only/$blogname" 2>/dev/null
+	setfacl -R -x "g:g_${author}_subs" "$blogpath"
 	echo "Archived"
 }
 
@@ -118,8 +119,8 @@ function delete () {
 		del(.blogs[] | select(.file_name == \"$blogname\"))
 	" "$blogs_data_file"
 
-	unlink "/home/authors/$author/public/$blogname"
-	unlink "/home/authors/$author/subscribers_only/$blogname"
+	unlink "/home/authors/$author/public/$blogname" 2>/dev/null
+	unlink "/home/authors/$author/subscribers_only/$blogname" 2>/dev/null
 
 	rm "$blogpath"
 
@@ -161,17 +162,18 @@ function toggle_subs () {
 	if [[ $subs_status == "true" ]]; then
 		if [[ "$publish_status" == 'true' ]]; then
 			ln -sf "$blogpath" "/home/authors/$author/subscribers_only/$blogname"
-			
+			setfacl -R -m "g:g_${author}_subs:r" "$blogpath"
 			notify_subs
 		fi
 
-		unlink "/home/authors/$author/public/$blogname"
+		unlink "/home/authors/$author/public/$blogname" 2>/dev/null
 	else
 		if [[ "$publish_status" == 'true' ]]; then
 			ln -sf "$blogpath" "/home/authors/$author/public/$blogname"
 		fi
 
-		unlink "/home/authors/$author/subscribers_only/$blogname"
+		unlink "/home/authors/$author/subscribers_only/$blogname" 2>/dev/null
+		setfacl -R -x "g:g_${author}_subs" "$blogpath"
 	fi
 
 	echo "Subscribers Only is set to $subs_status"

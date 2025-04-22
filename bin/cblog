@@ -3,8 +3,10 @@
 author="$1"
 blogname="$2"
 blogpath="/home/authors/$1/public/$2"
+subs_only=0
 
 if [[ ! -f "$blogpath" ]]; then
+	subs_only=1
 	blogpath="/home/users/$(whoami)/subscribed_blogs/$author/$blogname"
 	if [[ ! -f "$blogpath" ]]; then
 		echo "Blog does not exist. Usage: <command> <authorname> <blogname>"
@@ -22,6 +24,9 @@ echo "-----"
 echo "Blog Name: $blogname"
 echo "Author: $author"
 echo "$modified"
+if [[ $subs_only == 1 ]]; then
+        echo "Subscribers Only";
+fi
 echo -e "-----\n"
 
 cat "$blogpath"

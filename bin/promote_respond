@@ -42,7 +42,7 @@ elif [[ "$2" == "approve" ]]; then
 	chmod u=rwx,g=rwx,o= "$target_dir/blogs.yaml"
 	chmod o+r "$target_dir/public"
 
-	for all_blogs_dir in "$(ls -1d /home/users/*/all_blogs)"; do
+	for all_blogs_dir in /home/users/*/all_blogs; do
 		ln -sfn "$target_dir/public" "$all_blogs_dir/$username"
 	done
 

@@ -4,6 +4,17 @@ port=3000
 
 while true; do
 	msg=($(nc -l -s localhost -p $port))
+
+	if [[ $port -ge 3999 ]]; then
+		echo "3xxx ports not available"
+		exit
+	fi
+
+	if [[ $? != 0 ]]; then
+		port=(($port+1))
+		continue
+	fi
+
 	author=${msg[0]}
 	blogname=${msg[1]}
 

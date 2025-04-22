@@ -1,0 +1,21 @@
+#!/bin/bash
+
+for user in $(who | cut -f 1-1 -d " "); do
+        notifs_file="/home/users/$user/notifications.log"
+
+        if [[ -f "$notifs_file" ]]; then
+                unread_cnt=$(sed -n "/^new_notifs$/,/^$/p" "$notifs_file" | sed "1d" | wc -l)
+
+                echo "$user $unread_cnt"
+
+                if [[ "$unread_cnt" -gt 0 ]]; then
+                        echo "notifying $user"
+                        echo "You have $unread_cnt new messages" | write "$user"
+                fi
+        fi
+done
+
+
+
+
+

@@ -27,7 +27,7 @@ subs_file="/scripts/subscriptions.yaml"
 if [[ -d "$target" ]]; then
 	yq -i "del(.[\"$author\"][] | select(. == \"$username\"))" "$subs_file"
 	unlink "$target"
-	usermod -rG "g_${author}_subs" "$username"
+	gpasswd -d "$username" "g_${author}_subs"
 	echo "Unsubscribed from $author"
 else
 	yq -i ".[\"$author\"] += [\"$username\"]" "$subs_file"

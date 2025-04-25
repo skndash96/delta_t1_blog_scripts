@@ -45,6 +45,8 @@ function populate() {
 			chmod o+x "$homedir"
 		fi
 
+		setfacl -m "m:rwx" "$homedir"
+
 		if [[ $? != 0 ]]; then
 			echo "skipping $key $username"
 		else
@@ -63,7 +65,7 @@ function populate() {
 				chmod u=rwx,g=rwx,o=x $dirs
 				chmod u=rwx,g=rwx,o= "$homedir/blogs.yaml"
 				chmod o+r "$homedir/public"
-				setfacl -R -d -m "g:g_${username}_subs:r" -m "g:g_${username}_subs:r" "$homedir/subscribers_only"
+				setfacl -R -d -m "g:g_${username}_subs:rx" -m "g:g_${username}_subs:rx" "$homedir/subscribers_only"
 			fi
 			echo "$key $username $name"
 		fi

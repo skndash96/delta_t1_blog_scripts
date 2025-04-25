@@ -12,7 +12,7 @@ function populate() {
 		username=$(echo "$user" | yq ".username")
 		name=$(echo "$user" | yq ".name")
 
-		userdel -r "$username" 2>/dev/null
+		userdel -r "$username" 
 
 		echo "$key $username $name"
 		((u=u+1))

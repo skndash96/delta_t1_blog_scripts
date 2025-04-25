@@ -30,7 +30,7 @@ fi
 for blog in "$base"/*; do
 	blogname=$(echo -n "$blog" | cut -c $((${#base}+2))-)
 
-	words=$(grep -i -o -f "$blacklist_file" "base/$blogname")
+	words=$(grep -i -o -f "$blacklist_file" "$base/$blogname")
 	uniq_words=($(echo "$words" | uniq))
 	count=$(echo "$words" | wc -w)
 

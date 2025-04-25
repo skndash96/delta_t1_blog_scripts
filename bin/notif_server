@@ -11,7 +11,7 @@ while true; do
 	fi
 
 	if [[ $? != 0 ]]; then
-		port=(($port+1))
+		port=$((port+1))
 		continue
 	fi
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # reset all facl
-setfacl -b -R /home/authors/*/public
+setfacl -R -b /home/authors/*/public -b /home/authors/*/blogs.yaml
 
 u=0
 
@@ -12,6 +12,9 @@ do
 
 	mod_username=$(echo "$mod" | yq ".username")
 
+	rm -rf "/home/mods/$mod_username/authors"
+	mkdir  "/home/mods/$mod_username/authors"
+
 	v=0
 	while true
 	do
@@ -19,7 +22,9 @@ do
 		if [[ "$author_username" == "null" ]]; then break; fi
 
 		dir="/home/authors/$author_username/public"
-		setfacl -R -d -m "u:$mod_username:rwx" "$dir"
+		setfacl -R -m "u:$mod_username:rwx" -d -m "u:$mod_username:rwx" "$dir"
+
+		ln -sfn "$dir" "/home/mods/$mod_username/authors/$author_username"
 
 		((v=v+1))
 

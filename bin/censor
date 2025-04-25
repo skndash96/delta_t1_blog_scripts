@@ -1,6 +1,12 @@
 #!/bin/bash
 
 author="$1"
+username="$SUDO_USER"
+
+if [[ -z "$username" ]]; then
+	echo "Please use sudo"
+	exit 1
+fi
 
 if [[ -z "$1" ]]; then
 	echo "Please provide author name as argument 1"
@@ -11,10 +17,20 @@ home="/home/authors/$author"
 base="$home/public"
 blogs_data_file="$home/blogs.yaml"
 
+blacklist_file="/home/mods/$username/blacklist.txt"
+
+if [[ ! -f "$blacklist_file" ]]; then
+	touch "$blacklist_file"
+	chown "$username:$username" "$blacklist_file"
+	chmod u+rwx "$blacklist_file"
+	echo "Blacklist file created ~/blacklist.txt, fill some words and cya later"
+	exit 1
+fi
+
 for blog in "$base"/*; do
 	blogname=$(echo -n "$blog" | cut -c $((${#base}+2))-)
 
-	words=$(grep -i -o -f /scripts/blacklist.txt "$base/$blogname")
+	words=$(grep -i -o -f "$blacklist_file" "base/$blogname")
 	uniq_words=($(echo "$words" | uniq))
 	count=$(echo "$words" | wc -w)
 

@@ -2,6 +2,20 @@
 
 default_pw="123"
 
+function fix_users_or_authors() {
+	key=$1
+
+	for username in $(ls -1p /home/users/ | sed -n 's/^\(.*\)\/$/\1/p'); do
+		exists=$(yq ".$key[] | select(.username == \"$username\")"  "/scripts/users.yaml")
+
+		if [[ -z "$exists" ]]; then
+			userdel "$username"
+			echo "Removed $key $username"
+		fi
+	done
+}
+
+
 function populate() {
 	key=$1
 	u=0
@@ -16,7 +30,12 @@ function populate() {
 
 		homedir="/home/$key/$username"
 
-		useradd -m -d "$homedir" -U -c "$name" "$username"
+		useradd -m -d "$homedir" -U -c "$name" "$username" 2>/dev/null
+
+		if [[ $? != 0 ]]; then
+			echo "skipping $key $username"
+			continue
+		fi
 
 		echo -e "$default_pw\n$default_pw" | passwd -q "$username"
 
@@ -42,6 +61,7 @@ function populate() {
 				chmod u=rwx,g=rwx,o=x $dirs
 				chmod u=rwx,g=rwx,o= "$homedir/blogs.yaml"
 				chmod o+r "$homedir/public"
+				setfacl -R -d -m "g:g_${username}_subs:r" -m "g:g_${username}_subs:r" "$homedir/subscribers_only"
 			fi
 			echo "$key $username $name"
 		fi
@@ -49,6 +69,9 @@ function populate() {
 		((u=u+1))
 	done
 }
+
+fix_users_or_authors users
+fix_users_or_authors authors
 
 populate admins
 populate mods

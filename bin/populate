@@ -9,7 +9,7 @@ function fix_users_or_authors() {
 		exists=$(yq ".$key[] | select(.username == \"$username\")"  "/scripts/users.yaml")
 
 		if [[ -z "$exists" ]]; then
-			userdel "$username"
+			userdel "$username" 2>/dev/null
 			echo "Removed $key $username"
 		fi
 	done
@@ -31,6 +31,8 @@ function populate() {
 		homedir="/home/$key/$username"
 
 		useradd -m -d "$homedir" -U -c "$name" "$username" 2>/dev/null
+
+		((u=u+1))
 
 		if [[ $? != 0 ]]; then
 			echo "skipping $key $username"
@@ -65,8 +67,6 @@ function populate() {
 			fi
 			echo "$key $username $name"
 		fi
-
-		((u=u+1))
 	done
 }
 

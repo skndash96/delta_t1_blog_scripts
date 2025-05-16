@@ -6,6 +6,7 @@ services:
     image: blog-server/users
     volumes:
       - home:/home/
+      - mysql:/var/lib/mysql/
 
   nginx:
     build:
@@ -18,5 +19,13 @@ services:
     volumes:
       - home:/home/:ro
 
+  db:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: kali
+    volumes:
+      - mysql:/var/lib/mysql
+
 volumes:
+  mysql:
   home:

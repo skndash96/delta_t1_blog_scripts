@@ -2,6 +2,11 @@
 
 default_pw="123"
 
+groupadd g_users;
+groupadd g_authors;
+groupadd g_mods;
+groupadd g_admins;
+
 function fix_users_or_authors() {
 	key=$1
 

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+USER_ID="33"
+
+setfacl -R -m "u:$USE_R:rx" /home/authors/*/blogs
+setfacl -d -m "u:$USER:rx" /home/authors/*/blogs
+
+echo "done"

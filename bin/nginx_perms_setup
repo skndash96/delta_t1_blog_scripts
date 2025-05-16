@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# id of www-data user in nginx container
+# turns out even if user doesnt exist, i can setup acl for id
+USER_ID="33"
+
+setfacl -R -m "u:$USER_ID:rx" /home/authors/*/blogs
+setfacl -d -m "u:$USER_ID:rx" /home/authors/*/blogs
+
+echo "done setup nginx www-data perms"

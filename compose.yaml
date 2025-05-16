@@ -1,0 +1,22 @@
+services:
+  users:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: blog-server/users
+    volumes:
+      - home:/home/
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    image: blog-server/nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - home:/home/:ro
+
+volumes:
+  home:

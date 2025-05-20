@@ -1,9 +1,11 @@
 services:
-  users:
+  app:
     build:
       context: ./
       dockerfile: Dockerfile
-    image: blog-server/users
+    image: blogs/app
+    depends_on:
+      - db
     volumes:
       - home:/home/
       - mysql:/var/lib/mysql/
@@ -12,7 +14,7 @@ services:
     build:
       context: ./nginx
       dockerfile: Dockerfile
-    image: blog-server/nginx
+    image: blogs/nginx
     ports:
       - "80:80"
       - "443:443"
@@ -20,12 +22,17 @@ services:
       - home:/home/:ro
 
   db:
-    image: mysql
+    build:
+       context: ./db
+       dockerfile: Dockerfile
+    image: blogs/db
+    restart: always
     environment:
       - MYSQL_ROOT_PASSWORD
     volumes:
       - mysql:/var/lib/mysql
-
+      - ./db/migration.sql:/docker-entrypoint-initdb.d/migration.sql:ro
+#                                  ^ ig mysql image will run sql files inside this dir
 volumes:
   mysql:
   home:

@@ -40,8 +40,8 @@ function populate() {
 
 		((u=u+1))
 
-		usermod_exp=$(usermod -e -1 "$username" 2> /dev/null | grep "no changes")
-		if [[ -z "$usermod_exp" ]]; then echo "Unlocked $username"; fi
+		usermod_exp=$(usermod -e -1 "$username" | grep 'no changes')
+		if [[ $? == 0 ]] && [[ -z "$usermod_exp" ]]; then echo "Unlocked $username"; fi
 
 		useradd -m -d "$homedir" -U -c "$name" "$username" 2>/dev/null
 

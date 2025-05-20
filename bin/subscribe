@@ -1,5 +1,7 @@
 #!/bin/bash
 
+SUBSCRIPTIONS_FILE="/scripts/subscriptions.yaml"
+
 author="$1"
 
 if [[ -z "$author" ]]; then
@@ -22,15 +24,13 @@ fi
 
 target="/home/users/$username/subscribed_blogs/$author"
 
-subs_file="/scripts/subscriptions.yaml"
-
 if [[ -d "$target" ]]; then
-	yq -i "del(.[\"$author\"][] | select(. == \"$username\"))" "$subs_file"
+	yq -i "del(.[\"$author\"][] | select(. == \"$username\"))" "$SUBSCRIPTIONS_FILE"
 	unlink "$target"
 	gpasswd -d "$username" "g_${author}_subs"
 	echo "Unsubscribed from $author"
 else
-	yq -i ".[\"$author\"] += [\"$username\"]" "$subs_file"
+	yq -i ".[\"$author\"] += [\"$username\"]" "$SUBSCRIPTIONS_FILE"
 	ln -sfn "/home/authors/$author/subscribers_only" "$target"
 	usermod -aG "g_${author}_subs" "$username"
 	echo "Subscribed to $author"

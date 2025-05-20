@@ -1,5 +1,7 @@
 #!/bin/bash
 
+USERS_YAML_FILE="/scripts/users.yaml"
+
 # reset all facl
 setfacl -R -b /home/authors/*/public -b /home/authors/*/blogs.yaml
 
@@ -7,7 +9,7 @@ u=0
 
 while true
 do
-	mod=$(yq ".mods[$u]" /scripts/users.yaml)
+	mod=$(yq ".mods[$u]" $USERS_YAML_FILE)
 	if [[ "$mod" == "null" ]]; then break; fi
 
 	mod_username=$(echo "$mod" | yq ".username")

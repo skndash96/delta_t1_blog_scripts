@@ -22,7 +22,7 @@ services:
   db:
     image: mysql
     environment:
-      MYSQL_ROOT_PASSWORD: kali
+      - MYSQL_ROOT_PASSWORD
     volumes:
       - mysql:/var/lib/mysql
 

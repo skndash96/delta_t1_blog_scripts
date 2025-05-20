@@ -1,12 +1,14 @@
 #!/bin/bash
 
+USERS_YAML_FILE="/scripts/users.yaml"
+
 function populate() {
 	key=$1
 	u=0
 
 	while true
 	do
-		user=$(yq ".$key[$u]" /scripts/users.yaml)
+		user=$(yq ".$key[$u]" $USERS_YAML_FILE)
 		if [[ $user == 'null' ]]; then return; fi
 
 		username=$(echo "$user" | yq ".username")

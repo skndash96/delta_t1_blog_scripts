@@ -1,8 +1,8 @@
 #!/bin/bash
 authors=($(ls -1p "/home/authors" | grep \/$))
 
-report_path="/scripts/reports/$(date +%s).yaml"
-touch "$report_path"
+REPORT_OUTPUT_PATH="/scripts/reports/$(date +%s).yaml"
+touch "$REPORT_OUTPUT_PATH"
 
 tmp=$(mktemp)
 
@@ -30,7 +30,7 @@ for author in "${authors[@]}"; do
 		cats_joined="["
 		for cate in "${cats[@]}"; do
 			cate_name=$(yq ".categories.$cate" "$blogs_data_file")
-			yq -i ".categories.[\"$cate_name\"] += 1" "$report_path"
+			yq -i ".categories.[\"$cate_name\"] += 1" "$REPORT_OUTPUT_PATH"
 			cats_joined+="\"$cate_name\","
 		done
 
@@ -44,7 +44,7 @@ for author in "${authors[@]}"; do
 
 		echo "$blog" > "$tmp"
 
-		yq -i ".blogs += [load(\"$tmp\")]" "$report_path"
+		yq -i ".blogs += [load(\"$tmp\")]" "$REPORT_OUTPUT_PATH"
 
 		((u=u+1))
 	done
@@ -52,11 +52,11 @@ done
 
 rm "$tmp"
 
-yq -i ".blogs |= (sort_by(.reads) | reverse)" "$report_path"
+yq -i ".blogs |= (sort_by(.reads) | reverse)" "$REPORT_OUTPUT_PATH"
 
-total_published=$(yq ".blogs[] | select(.publish_status == true).file_name" "$report_path" | wc -l)
-total_deleted=$(yq ".blogs[] | select(.publish_status == false).file_name" "$report_path" | wc -l)
+total_published=$(yq ".blogs[] | select(.publish_status == true).file_name" "$REPORT_OUTPUT_PATH" | wc -l)
+total_deleted=$(yq ".blogs[] | select(.publish_status == false).file_name" "$REPORT_OUTPUT_PATH" | wc -l)
 
-yq -i ".total_published = $total_published | .total_deleted = $total_deleted" "$report_path"
+yq -i ".total_published = $total_published | .total_deleted = $total_deleted" "$REPORT_OUTPUT_PATH"
 
-echo "$report_path"
+echo "$REPORT_OUTPUT_PATH"

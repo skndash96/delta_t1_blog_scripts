@@ -1,5 +1,8 @@
 #!/bin/bash
 
+USERS_YAML_FILE="/scripts/users.yaml"
+BLOGS_INITIAL_FILE="/scripts/blogs_initial.yaml"
+
 default_pw="123"
 
 groupadd g_users;
@@ -11,7 +14,7 @@ function fix_users_or_authors() {
 	key=$1
 
 	for username in $(ls -1p "/home/$key/" | sed -n 's/^\(.*\)\/$/\1/p'); do
-		exists=$(yq ".$key[] | select(.username == \"$username\")"  "/scripts/users.yaml")
+		exists=$(yq ".$key[] | select(.username == \"$username\")"  $USERS_YAML_FILE)
 
 		if [[ -z "$exists" ]]; then
 			usermod -e 1 "$username"
@@ -27,7 +30,7 @@ function populate() {
 
 	while true
 	do
-		user=$(yq ".$key[$u]" /scripts/users.yaml)
+		user=$(yq ".$key[$u]" $USERS_YAML_FILE)
 		if [[ $user == 'null' ]]; then return; fi
 
 		username=$(echo "$user" | yq ".username")
@@ -65,7 +68,7 @@ function populate() {
 
 			dirs="$homedir/blogs $homedir/public $homedir/subscribers_only"
 			mkdir $dirs
-			cp "/scripts/blogs_initial.yaml" "$homedir/blogs.yaml"
+			cp $BLOGS_INITIAL_FILE "$homedir/blogs.yaml"
 			chown "$username:$username" $dirs "$homedir/blogs.yaml"
 			chmod u=rwx,g=rwx,o=x $dirs
 			chmod u=rwx,g=rwx,o= "$homedir/blogs.yaml"

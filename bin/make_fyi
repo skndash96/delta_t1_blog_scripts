@@ -1,6 +1,6 @@
 #!/bin/bash
 
-userpref="/scripts/userpref.yaml"
+USERS_PREF_FILE="/scripts/userpref.yaml"
 
 authors_base=($(ls -1pd /home/authors/* | grep "/$"))
 
@@ -11,9 +11,8 @@ if [[ $n_blogs == 0 ]]; then
 	exit 1
 fi
 
-n_users=$(yq ".users | length" "$userpref")
+n_users=$(yq ".users | length" "$USERS_PREF_FILE")
 n_authors=${#authors_base[@]}
-
 
 n=$(( $n_users/$n_blogs ))
 if [[ $n -lt 1 ]]; then ((n=1)); fi
@@ -22,7 +21,7 @@ map_cu=$(mktemp)
 map_ub=$(mktemp)
 
 for ((i=0; i<$n_users; i++)); do
-	user=$(yq ".users[$i]" "$userpref")
+	user=$(yq ".users[$i]" "$USERS_PREF_FILE")
 	username=$(echo "$user" | yq ".username")
 	pref1=$(echo "$user" | yq ".pref1")
 	pref2=$(echo "$user" | yq ".pref2")

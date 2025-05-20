@@ -1,5 +1,7 @@
 #!/bin/bash
 
+HELP_FILE="/scripts/blog.txt"
+
 author=$(whoami)
 blogname="$2"
 blogpath="/home/authors/$author/blogs/$blogname"
@@ -7,7 +9,7 @@ blogs_data_file="/home/authors/$author/blogs.yaml"
 
 
 function help () {
-	cat /scripts/blog.txt
+	cat $HELP_FILE
 }
 
 function notify_subs() {

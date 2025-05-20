@@ -1,10 +1,12 @@
 #!/bin/bash
 
+USERS_YAML_FILE="/scripts/users.yaml"
+
 u=0
 
 while true
 do
-	user=$(yq ".users[$u]" "/scripts/users.yaml")
+	user=$(yq ".users[$u]" "$USERS_YAML_FILE")
 	if [[ "$user" == "null" ]]; then break; fi
 
 	username=$(echo "$user" | yq ".username")
@@ -13,7 +15,7 @@ do
 
 	while true
 	do
-		author=$(yq ".authors[$v]" "/scripts/users.yaml")
+		author=$(yq ".authors[$v]" "$USERS_YAML_FILE")
 		if [[ "$author" == "null" ]]; then break; fi
 
 		authorusername=$(echo "$author" | yq ".username")

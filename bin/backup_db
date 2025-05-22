@@ -1,0 +1,15 @@
+#!/bin/bash
+# this script is called by cron every friday
+
+nm0=$(date +%m)
+nm1=$(date +%m --date="last friday")
+nm2=$(date +%m --date="last friday -7 days")
+
+if [[ $nm0 == $nm1 ]] && [[ $nm1 != $nm2 ]]; then
+	echo "2nd friday"
+	tmp=$(mktemp)
+	mysqldump --defaults-extra-file="/scripts/mysql-client.cnf" blogdb > $tmp
+	mv $tmp /scripts/backups
+fi
+
+

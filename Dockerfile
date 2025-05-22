@@ -12,15 +12,6 @@ RUN curl -L https://github.com/mikefarah/yq/releases/latest/download/yq_linux_am
 
 COPY . /scripts/
 
-RUN /scripts/bin/populate \
-	&& /scripts/bin/all_blogs_setup \
-	&& /scripts/bin/mods_setup \
-	&& /scripts/bin/nginx_perms_setup
-	#&& /scripts/bin/notifs_server &
-
 ENV LANG=en_US.utf8;
-ENV PATH="/scripts/bin:${PATH}"
 
-# TODO setup crons (for notif, report_gen)
-
-CMD ["tail", "-f", "/dev/null"]
+CMD ["/bin/bash", "-c", "/scripts/bin/init_setup_container"]

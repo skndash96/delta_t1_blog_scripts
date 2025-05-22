@@ -1,0 +1,23 @@
+#!/bin/bash
+
+USERS_YAML_FILE="/scripts/users.yaml"
+tmp=$(mktemp)
+
+echo $tmp
+echo "USE blogdb;" > $tmp
+echo "INSERT INTO users (name) VALUES " >> $tmp
+
+prev=""
+
+for username in $(yq ".users[] | .username" "$USERS_YAML_FILE"); do
+	if [[ ! -z "$prev" ]]; then
+		echo "('$prev')," >> $tmp
+	fi
+	prev="$username"
+	((u=u+1))
+done
+
+echo "('$prev');" >> $tmp
+
+# ik its not safe to put pw here. TODO: put pw in a file with no read perms
+mysql -h db -uroot -pkali < $tmp

@@ -7,8 +7,9 @@ services:
     depends_on:
       - db
     volumes:
-      - home:/home/
       - mysql:/var/lib/mysql/
+      - app-home:/home/
+      - app-scripts:/scripts/
 
   nginx:
     build:
@@ -19,7 +20,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - home:/home/:ro
+      - app-home:/home/:ro
 
   db:
     build:
@@ -31,8 +32,8 @@ services:
       - MYSQL_ROOT_PASSWORD
     volumes:
       - mysql:/var/lib/mysql
-      - ./db/migration.sql:/docker-entrypoint-initdb.d/migration.sql:ro
-#                                  ^ ig mysql image will run sql files inside this dir
+
 volumes:
   mysql:
-  home:
+  app-home:
+  app-scripts:

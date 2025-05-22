@@ -5,11 +5,6 @@ BLOGS_INITIAL_FILE="/scripts/blogs_initial.yaml"
 
 default_pw="123"
 
-groupadd g_users;
-groupadd g_authors;
-groupadd g_mods;
-groupadd g_admins;
-
 function fix_users_or_authors() {
 	key=$1
 
@@ -40,7 +35,7 @@ function populate() {
 
 		((u=u+1))
 
-		usermod_exp=$(usermod -e -1 "$username" | grep 'no changes')
+		usermod_exp=$(usermod -e -1 "$username" 2> /dev/null | grep 'no changes')
 		if [[ $? == 0 ]] && [[ -z "$usermod_exp" ]]; then echo "Unlocked $username"; fi
 
 		useradd -m -d "$homedir" -U -c "$name" "$username" 2>/dev/null

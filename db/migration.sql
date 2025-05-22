@@ -22,3 +22,8 @@ CREATE TABLE IF NOT EXISTS blogs (
 CREATE INDEX idx_users_name ON users(name(100));
 CREATE INDEX idx_blogs_name ON blogs(name(100));
 CREATE INDEX idx_blogs_author ON blogs(author(100));
+
+-- Create read-only user
+CREATE USER 'readonly'@'%' IDENTIFIED BY 'readonlypassword';
+GRANT SELECT ON blogdb.* TO 'readonly'@'%';
+FLUSH PRIVILEGES;

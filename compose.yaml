@@ -10,6 +10,8 @@ services:
       - mysql:/var/lib/mysql/
       - app-home:/home/
       - app-scripts:/scripts/
+    mem_limit: 512m
+    cpus: 0.5
 
   nginx:
     build:
@@ -19,19 +21,43 @@ services:
     ports:
       - "80:80"
       - "443:443"
+      - "2222:2222"
     volumes:
       - app-home:/home/:ro
+    mem_limit: 256m
+    cpus: 0.3
 
   db:
     build:
        context: ./db
        dockerfile: Dockerfile
+    healthcheck:
+       test: bash -c 'mysqladmin -uroot -p"$MYSQL_ROOT_PASSWORD" ping'
+       retries: 5
+       interval: 5s
     image: blogs/db
     restart: always
     environment:
       - MYSQL_ROOT_PASSWORD
     volumes:
       - mysql:/var/lib/mysql
+    mem_limit: 1g
+    cpus: 1.0
+
+  phpmyadmin:
+    build:
+      context: ./phpmyadmin
+      dockerfile: Dockerfile
+    image: blogs/phpmyadmin
+    restart: always
+    ports:
+      - "8081:443"
+    environment:
+      PMA_HOST: db
+    depends_on:
+      - db
+    mem_limit: 256m
+    cpus: 0.2
 
 volumes:
   mysql:

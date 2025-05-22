@@ -82,3 +82,27 @@ populate admins
 populate mods
 populate authors
 populate users
+
+
+### populate users table
+tmp=$(mktemp)
+
+echo $tmp
+echo "USE blogdb;" > $tmp
+echo "INSERT INTO users (name) VALUES " >> $tmp
+
+prev=""
+
+for username in $(yq ".users[] | .username" "$USERS_YAML_FILE"); do
+        if [[ ! -z "$prev" ]]; then
+               	echo "('$prev')," >> $tmp
+       	fi
+
+	prev="$username"
+        ((u=u+1))
+done
+
+echo "('$prev');" >> $tmp
+
+#healthcheck is done for mysql server is ready
+mysql --defaults-extra-file="/scripts/mysql-client.cnf" < $tmp

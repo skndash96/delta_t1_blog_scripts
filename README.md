@@ -1,7 +1,24 @@
 # Task 1 - Delta
 this is a blog server built for Delta force induction tasks
 
-### Workflow
+### Containers
+- blogs/app
+    here every user (user, author, mod or admin) exists. all scripts are here
+- blogs/mysql
+    contains mysql db of users and blogs db. this is in same network as all other containers so app container can query the db
+- blogs/phpmyadmin
+    has exposed 8081:443 port. receives https traffic directly and provides gui for mysql db
+- blogs/nginx
+    has exposed 443:443 port. receives https traffic and reads blog files (based on header `Host: <authorname>.blog.in`)
+
+### Setup
+- clone the repo
+- docker compose up --build
+- app container starts only after db is healthy (healthcheck is `mysqladmin ping`)
+- app container /home and /scripts is persisted. it calls scripts to populate users, setup all blogs, setup mods etc. it also calls populate db users which fills users table if mysql is running
+- other containers are self-explainatory (checkout nginx conf and sql migration file)
+
+### Workflow of App Container Scripts
 
 - `populate` creates users admins mods and authors from users.yaml
 - `genocide` deletes all users admins mods and authors

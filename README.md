@@ -3,13 +3,13 @@ this is a blog server built for Delta force induction tasks
 
 ### Containers
 - blogs/app
-    here every user (user, author, mod or admin) exists. all scripts are here
+    here every user (user, author, mod or admin) exists. all scripts are here. and sshd is running and keeps container up.
 - blogs/mysql
     contains mysql db of users and blogs db. this is in same network as all other containers so app container can query the db
 - blogs/phpmyadmin
     has exposed 8081:443 port. receives https traffic directly and provides gui for mysql db
 - blogs/nginx
-    has exposed 443:443 port. receives https traffic and reads blog files (based on header `Host: <authorname>.blog.in`)
+    has exposed 2222:22 (redirected to app:22) and 443:443 port. receives https traffic and reads blog files (based on header `Host: <authorname>.blog.in`)
 
 ### Setup
 - clone the repo

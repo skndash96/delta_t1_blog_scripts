@@ -1,5 +1,6 @@
 services:
   app:
+    container_name: app
     build:
       context: ./
       dockerfile: Dockerfile
@@ -14,10 +15,13 @@ services:
     cpus: 0.5
 
   nginx:
+    container_name: nginx
     build:
       context: ./nginx
       dockerfile: Dockerfile
     image: blogs/nginx
+    depends_on:
+      - app
     ports:
       - "80:80"
       - "443:443"
@@ -28,13 +32,14 @@ services:
     cpus: 0.3
 
   db:
+    container_name: db
     build:
-       context: ./db
-       dockerfile: Dockerfile
+      context: ./db
+      dockerfile: Dockerfile
     healthcheck:
-       test: bash -c 'mysqladmin -uroot -p"$MYSQL_ROOT_PASSWORD" ping'
-       retries: 5
-       interval: 5s
+      test: bash -c 'mysqladmin -uroot -p"$MYSQL_ROOT_PASSWORD" ping'
+      retries: 5
+      interval: 5s
     image: blogs/db
     restart: always
     environment:
@@ -45,6 +50,7 @@ services:
     cpus: 1.0
 
   phpmyadmin:
+    container_name: phpmyadmin
     build:
       context: ./phpmyadmin
       dockerfile: Dockerfile

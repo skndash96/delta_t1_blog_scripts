@@ -1,44 +1,42 @@
 #!/bin/bash
 
-INIT_DONE_FILE="/data/.init_done"
-
 cd /scripts/bin
 
-#if [[ ! -f $INIT_DONE_FILE ]]; then
-	# setup PATH
-	# how to?
+# setup PATH
+# how to?
 
-	# setup groups
-	groupadd g_users
-	groupadd g_authors
-	groupadd g_mods
-	groupadd g_admins
+# setup groups
+groupadd g_users
+groupadd g_authors
+groupadd g_mods
+groupadd g_admins
 
-	# setup perms for scripts
-	setfacl -m g:g_users:rx subscribe
-	setfacl -m g:g_users:rx promote
-	setfacl -m g:g_users:rx cblog
+# setup perms for scripts
+setfacl -m g:g_users:rx subscribe
+setfacl -m g:g_users:rx promote
+setfacl -m g:g_users:rx cblog
 
-	setfacl -m g:g_authors:rx blog
+setfacl -m g:g_authors:rx blog
 
-	setfacl -m g:g_mods:rx censor
+setfacl -m g:g_mods:rx censor
 
-	setfacl -m g:g_admins:rx promote_respond
-	setfacl -m g:g_admins:rx make_fyi
-	setfacl -m g:g_admins:rx gen_report
+setfacl -m g:g_admins:rx promote_respond
+setfacl -m g:g_admins:rx make_fyi
+setfacl -m g:g_admins:rx gen_report
 
-	# its okay to run all these cmds again on persisted /home
-	# setup correct ACLs for all files inside /home
-	./populate \
-		&& ./all_blogs_setup \
-		&& ./mods_setup \
-		&& ./nginx_perms_setup
+# its okay to run all these cmds again on persisted /home
+# setup correct ACLs for all files inside /home
+./populate \
+	&& ./all_blogs_setup \
+	&& ./mods_setup \
+	&& ./nginx_perms_setup
 
-	# setup crons
-	cp ../blog_server_crons /etc/cron.d/
-
-	echo "true" > $INIT_DONE_FILE
-#fi
+# setup crons
+cp ../blog_server_crons /etc/cron.d/
 
 # start notification nc server
-./notif_server
+./notif_server &
+
+# start sshd
+mkdir -p /run/sshd
+/usr/sbin/sshd -D

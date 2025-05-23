@@ -56,8 +56,6 @@ services:
       dockerfile: Dockerfile
     image: blogs/phpmyadmin
     restart: always
-    ports:
-      - "8081:443"
     environment:
       PMA_HOST: db
     depends_on:

@@ -41,7 +41,7 @@ if [ ! -d $APP_ETC_BACKUP ]; then
 
 	echo "BACKED UP /etc/{passwd,shadow,gshadow,group}"
 else
-	mv "${APP_ETC_BACKUP}/*" /etc
+	mv "$APP_ETC_BACKUP"/* /etc
 fi
 
 # start notification nc server

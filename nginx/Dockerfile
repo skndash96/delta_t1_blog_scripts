@@ -6,6 +6,8 @@ COPY nginx.conf /etc/nginx/nginx.conf
 COPY blog.in.* /etc/nginx/
 COPY index.html /var/www/blog/index.html
 
-RUN mkdir /run/sshd
+RUN useradd jumpuser && \
+	$(echo 'jumpuser:123' | chpasswd) && \
+	mkdir /run/sshd
 
 CMD ["/bin/sh", "-c", "/usr/sbin/sshd && nginx -g 'daemon off;'"]
